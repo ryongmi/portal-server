@@ -28,7 +28,7 @@ import { ServiceManager } from './service.manager.js';
 // import { TransactionInterceptor } from '@krgeobuk/core/interceptors';
 // import { Serialize, TransactionManager } from '@krgeobuk/core/decorators';
 
-@SwaggerApiTags({ tags: ['authorizations'] })
+@SwaggerApiTags({ tags: ['services'] })
 @Controller('services')
 export class ServiceController {
   constructor(private readonly serviceManager: ServiceManager) {}

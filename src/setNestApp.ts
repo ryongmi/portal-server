@@ -7,7 +7,7 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { HttpExceptionFilter } from '@krgeobuk/core/filters';
 import { LoggingInterceptor } from '@krgeobuk/core/interceptors';
 
-// import cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 
 // import { SeederService } from './seeder/seeder.service';
 
@@ -37,7 +37,7 @@ export function setNestApp(
     credentials: true, // 쿠키를 포함한 요청 허용
   }); // cors 활성화
 
-  // app.use(cookieParser());
+  app.use(cookieParser());
 
   // 모든 엔드포인트에 api 추가
   app.setGlobalPrefix('api');
