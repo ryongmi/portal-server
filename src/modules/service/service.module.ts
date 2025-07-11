@@ -7,11 +7,12 @@ import { ServiceEntity } from './entities/service.entity.js';
 import { ServiceRepository } from './service.repositoty.js';
 
 import { ServiceController } from './service.controller.js';
+import { ServiceTcpController } from './service-tcp.controller.js';
 import { ServiceManager } from './service.manager.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ServiceEntity])],
-  controllers: [ServiceController, ],
+  controllers: [ServiceController, ServiceTcpController],
   providers: [
     ServiceManager,
     ServiceRepository,

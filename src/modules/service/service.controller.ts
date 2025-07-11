@@ -1,65 +1,246 @@
-import { Controller } from '@nestjs/common';
-// import { Request, Response } from 'express';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 
-// import { Serialize } from '@krgeobuk/core/decorators';
-// import {
-//   LoginRequestDto,
-//   LoginResponseDto,
-//   SignupRequestDto,
-//   RefreshResponseDto,
-// } from '@krgeobuk/auth/dtos';
-// import { AuthError } from '@krgeobuk/auth/exception';
-// import { AuthResponse } from '@krgeobuk/auth/response';
+import { Serialize } from '@krgeobuk/core/decorators';
 import {
   SwaggerApiTags,
-  // SwaggerApiBody,
-  // SwaggerApiOperation,
-  // SwaggerApiOkResponse,
-  // SwaggerApiErrorResponse,
+  SwaggerApiBody,
+  SwaggerApiOperation,
+  SwaggerApiBearerAuth,
+  SwaggerApiParam,
+  SwaggerApiOkResponse,
+  SwaggerApiPaginatedResponse,
+  SwaggerApiErrorResponse,
 } from '@krgeobuk/swagger/decorators';
-// import { JwtPayload } from '@krgeobuk/jwt/interfaces';
-// import { CurrentJwt } from '@krgeobuk/jwt/decorators';
-// import { AccessTokenGuard } from '@krgeobuk/jwt/guards';
-
-// import type { PaginatedResult } from '@krgeobuk/core/interfaces';
+import { JwtPayload } from '@krgeobuk/jwt/interfaces';
+import { CurrentJwt } from '@krgeobuk/jwt/decorators';
+import { AccessTokenGuard } from '@krgeobuk/jwt/guards';
+import { ServiceResponse } from '@krgeobuk/service/response';
+import { ServiceError } from '@krgeobuk/service/exception';
+import {
+  ServiceSearchQueryDto,
+  ServiceDetailDto,
+  ServicePaginatedSearchResultDto,
+  CreateServiceDto,
+  UpdateServiceDto,
+} from '@krgeobuk/service/dtos';
 
 import { ServiceManager } from './service.manager.js';
 
-// import { TransactionInterceptor } from '@krgeobuk/core/interceptors';
-// import { Serialize, TransactionManager } from '@krgeobuk/core/decorators';
-
 @SwaggerApiTags({ tags: ['services'] })
+@SwaggerApiBearerAuth()
 @Controller('services')
 export class ServiceController {
   constructor(private readonly serviceManager: ServiceManager) {}
 
-  // 전체 서비스 목록 조회
-  // @Get()
-  // async searchServices(): Promise<PaginatedResult<>> {
-  //   return await this.serviceService.searchServices();
-  // }
+  @Get()
+  @HttpCode(ServiceResponse.SEARCH_SUCCESS.statusCode)
+  @SwaggerApiOperation({
+    summary: '서비스 목록 조회',
+    description: '서비스 목록을 검색 조건에 따라 조회합니다.',
+  })
+  @SwaggerApiPaginatedResponse({
+    status: ServiceResponse.SEARCH_SUCCESS.statusCode,
+    description: ServiceResponse.SEARCH_SUCCESS.message,
+    dto: ServicePaginatedSearchResultDto,
+  })
+  @SwaggerApiErrorResponse({
+    status: ServiceError.SERVICE_SEARCH_ERROR.statusCode,
+    description: ServiceError.SERVICE_SEARCH_ERROR.message,
+  })
+  @UseGuards(AccessTokenGuard)
+  @Serialize({
+    dto: ServicePaginatedSearchResultDto,
+    ...ServiceResponse.SEARCH_SUCCESS,
+  })
+  async searchServices(
+    @Query() query: ServiceSearchQueryDto,
+    @CurrentJwt() jwt: JwtPayload
+  ): Promise<ServicePaginatedSearchResultDto> {
+    return this.serviceManager.searchServices(query);
+  }
 
-  // // 단일 서비스 조회
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.serviceService.findOne(id);
-  // }
+  @Get(':id')
+  @HttpCode(ServiceResponse.FETCH_SUCCESS.statusCode)
+  @SwaggerApiOperation({
+    summary: '서비스 상세 조회',
+    description: 'ID로 특정 서비스를 조회합니다.',
+  })
+  @SwaggerApiParam({
+    name: 'id',
+    type: String,
+    description: '서비스 ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @SwaggerApiOkResponse({
+    status: ServiceResponse.FETCH_SUCCESS.statusCode,
+    description: ServiceResponse.FETCH_SUCCESS.message,
+    dto: ServiceDetailDto,
+  })
+  @SwaggerApiErrorResponse({
+    status: ServiceError.SERVICE_NOT_FOUND.statusCode,
+    description: ServiceError.SERVICE_NOT_FOUND.message,
+  })
+  @SwaggerApiErrorResponse({
+    status: ServiceError.SERVICE_FETCH_ERROR.statusCode,
+    description: ServiceError.SERVICE_FETCH_ERROR.message,
+  })
+  @UseGuards(AccessTokenGuard)
+  @Serialize({
+    dto: ServiceDetailDto,
+    ...ServiceResponse.FETCH_SUCCESS,
+  })
+  async getServiceById(
+    @Param('id') id: string,
+    @CurrentJwt() jwt: JwtPayload
+  ): Promise<ServiceDetailDto> {
+    return this.serviceManager.getServiceById(id);
+  }
 
-  // // 서비스 생성
-  // @Post()
-  // create(@Body() dto: CreateServiceDto) {
-  //   return this.serviceService.create(dto);
-  // }
+  @Post()
+  @HttpCode(ServiceResponse.CREATE_SUCCESS.statusCode)
+  @SwaggerApiOperation({
+    summary: '서비스 생성',
+    description: '새로운 서비스를 생성합니다.',
+  })
+  @SwaggerApiBody({
+    dto: CreateServiceDto,
+    description: '서비스 생성 데이터',
+  })
+  @SwaggerApiOkResponse({
+    status: ServiceResponse.CREATE_SUCCESS.statusCode,
+    description: ServiceResponse.CREATE_SUCCESS.message,
+  })
+  @SwaggerApiErrorResponse({
+    status: ServiceError.SERVICE_CREATE_ERROR.statusCode,
+    description: ServiceError.SERVICE_CREATE_ERROR.message,
+  })
+  @SwaggerApiErrorResponse({
+    status: ServiceError.SERVICE_ALREADY_EXISTS.statusCode,
+    description: ServiceError.SERVICE_ALREADY_EXISTS.message,
+  })
+  @UseGuards(AccessTokenGuard)
+  @Serialize({
+    ...ServiceResponse.CREATE_SUCCESS,
+  })
+  async createService(@Body() dto: CreateServiceDto, @CurrentJwt() jwt: JwtPayload): Promise<void> {
+    await this.serviceManager.createService(dto);
+  }
 
-  // // 서비스 수정
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() dto: UpdateServiceDto) {
-  //   return this.serviceService.update(id, dto);
-  // }
+  @Patch(':id')
+  @HttpCode(ServiceResponse.UPDATE_SUCCESS.statusCode)
+  @SwaggerApiOperation({
+    summary: '서비스 수정',
+    description: '기존 서비스를 수정합니다.',
+  })
+  @SwaggerApiParam({
+    name: 'id',
+    type: String,
+    description: '서비스 ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @SwaggerApiBody({
+    dto: UpdateServiceDto,
+    description: '서비스 수정 데이터',
+  })
+  @SwaggerApiOkResponse({
+    status: ServiceResponse.UPDATE_SUCCESS.statusCode,
+    description: ServiceResponse.UPDATE_SUCCESS.message,
+  })
+  @SwaggerApiErrorResponse({
+    status: ServiceError.SERVICE_NOT_FOUND.statusCode,
+    description: ServiceError.SERVICE_NOT_FOUND.message,
+  })
+  @SwaggerApiErrorResponse({
+    status: ServiceError.SERVICE_UPDATE_ERROR.statusCode,
+    description: ServiceError.SERVICE_UPDATE_ERROR.message,
+  })
+  @UseGuards(AccessTokenGuard)
+  @Serialize({
+    ...ServiceResponse.UPDATE_SUCCESS,
+  })
+  async updateService(
+    @Param('id') id: string,
+    @Body() dto: UpdateServiceDto,
+    @CurrentJwt() jwt: JwtPayload
+  ): Promise<void> {
+    await this.serviceManager.updateService(id, dto);
+  }
 
-  // // 서비스 삭제
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.serviceService.remove(id);
-  // }
+  @Delete(':id')
+  @HttpCode(ServiceResponse.DELETE_SUCCESS.statusCode)
+  @SwaggerApiOperation({
+    summary: '서비스 삭제',
+    description: '서비스를 소프트 삭제합니다.',
+  })
+  @SwaggerApiParam({
+    name: 'id',
+    type: String,
+    description: '서비스 ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @SwaggerApiOkResponse({
+    status: ServiceResponse.DELETE_SUCCESS.statusCode,
+    description: ServiceResponse.DELETE_SUCCESS.message,
+  })
+  @SwaggerApiErrorResponse({
+    status: ServiceError.SERVICE_NOT_FOUND.statusCode,
+    description: ServiceError.SERVICE_NOT_FOUND.message,
+  })
+  @SwaggerApiErrorResponse({
+    status: ServiceError.SERVICE_DELETE_ERROR.statusCode,
+    description: ServiceError.SERVICE_DELETE_ERROR.message,
+  })
+  @UseGuards(AccessTokenGuard)
+  @Serialize({
+    ...ServiceResponse.DELETE_SUCCESS,
+  })
+  async deleteService(@Param('id') id: string, @CurrentJwt() jwt: JwtPayload): Promise<void> {
+    await this.serviceManager.deleteService(id);
+  }
+
+  @Get(':id/health')
+  @HttpCode(ServiceResponse.HEALTH_CHECK_SUCCESS.statusCode)
+  @SwaggerApiOperation({
+    summary: '서비스 상태 확인',
+    description: '서비스의 헬스체크를 수행합니다.',
+  })
+  @SwaggerApiParam({
+    name: 'id',
+    type: String,
+    description: '서비스 ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @SwaggerApiOkResponse({
+    status: ServiceResponse.HEALTH_CHECK_SUCCESS.statusCode,
+    description: ServiceResponse.HEALTH_CHECK_SUCCESS.message,
+  })
+  @SwaggerApiErrorResponse({
+    status: ServiceError.SERVICE_NOT_FOUND.statusCode,
+    description: ServiceError.SERVICE_NOT_FOUND.message,
+  })
+  @SwaggerApiErrorResponse({
+    status: ServiceError.SERVICE_HEALTH_CHECK_ERROR.statusCode,
+    description: ServiceError.SERVICE_HEALTH_CHECK_ERROR.message,
+  })
+  @UseGuards(AccessTokenGuard)
+  @Serialize({
+    ...ServiceResponse.HEALTH_CHECK_SUCCESS,
+  })
+  async checkServiceHealth(
+    @Param('id') id: string,
+    @CurrentJwt() jwt: JwtPayload
+  ): Promise<{ status: string; timestamp: Date }> {
+    return this.serviceManager.checkServiceHealth(id);
+  }
 }
