@@ -35,18 +35,18 @@ export class ServiceManager {
   /**
    * ID로 서비스 조회 (null 반환)
    */
-  async findById(id: string): Promise<ServiceEntity | null> {
-    return await this.serviceRepo.findOneById(id);
+  async findById(serviceId: string): Promise<ServiceEntity | null> {
+    return await this.serviceRepo.findOneById(serviceId);
   }
 
   /**
    * ID로 서비스 조회 (실패 시 예외)
    */
-  async findByIdOrFail(id: string): Promise<ServiceEntity> {
-    const service = await this.serviceRepo.findOneById(id);
+  async findByIdOrFail(serviceId: string): Promise<ServiceEntity> {
+    const service = await this.serviceRepo.findOneById(serviceId);
 
     if (!service) {
-      this.logger.warn('서비스를 찾을 수 없음', { serviceId: id });
+      this.logger.warn('서비스를 찾을 수 없음', { serviceId });
       throw ServiceException.serviceNotFound();
     }
 
