@@ -22,8 +22,6 @@ import {
   SwaggerApiPaginatedResponse,
   SwaggerApiErrorResponse,
 } from '@krgeobuk/swagger/decorators';
-import { JwtPayload } from '@krgeobuk/jwt/interfaces';
-import { CurrentJwt } from '@krgeobuk/jwt/decorators';
 import { AccessTokenGuard } from '@krgeobuk/jwt/guards';
 import { ServiceResponse } from '@krgeobuk/service/response';
 import { ServiceError } from '@krgeobuk/service/exception';
@@ -64,10 +62,9 @@ export class ServiceController {
     ...ServiceResponse.SEARCH_SUCCESS,
   })
   async searchServices(
-    @Query() query: ServiceSearchQueryDto,
-    @CurrentJwt() jwt: JwtPayload
+    @Query() query: ServiceSearchQueryDto
   ): Promise<ServicePaginatedSearchResultDto> {
-    return this.serviceManager.searchServices(query);
+    return await this.serviceManager.searchServices(query);
   }
 
   @Get(':id')
@@ -100,10 +97,7 @@ export class ServiceController {
     dto: ServiceDetailDto,
     ...ServiceResponse.FETCH_SUCCESS,
   })
-  async getServiceById(
-    @Param('id') id: string,
-    @CurrentJwt() jwt: JwtPayload
-  ): Promise<ServiceDetailDto> {
+  async getServiceById(@Param('id') id: string): Promise<ServiceDetailDto> {
     return this.serviceManager.getServiceById(id);
   }
 
@@ -133,7 +127,7 @@ export class ServiceController {
   @Serialize({
     ...ServiceResponse.CREATE_SUCCESS,
   })
-  async createService(@Body() dto: CreateServiceDto, @CurrentJwt() jwt: JwtPayload): Promise<void> {
+  async createService(@Body() dto: CreateServiceDto): Promise<void> {
     await this.serviceManager.createService(dto);
   }
 
@@ -169,11 +163,7 @@ export class ServiceController {
   @Serialize({
     ...ServiceResponse.UPDATE_SUCCESS,
   })
-  async updateService(
-    @Param('id') id: string,
-    @Body() dto: UpdateServiceDto,
-    @CurrentJwt() jwt: JwtPayload
-  ): Promise<void> {
+  async updateService(@Param('id') id: string, @Body() dto: UpdateServiceDto): Promise<void> {
     await this.serviceManager.updateService(id, dto);
   }
 
@@ -205,42 +195,7 @@ export class ServiceController {
   @Serialize({
     ...ServiceResponse.DELETE_SUCCESS,
   })
-  async deleteService(@Param('id') id: string, @CurrentJwt() jwt: JwtPayload): Promise<void> {
+  async deleteService(@Param('id') id: string): Promise<void> {
     await this.serviceManager.deleteService(id);
-  }
-
-  @Get(':id/health')
-  @HttpCode(ServiceResponse.HEALTH_CHECK_SUCCESS.statusCode)
-  @SwaggerApiOperation({
-    summary: '서비스 상태 확인',
-    description: '서비스의 헬스체크를 수행합니다.',
-  })
-  @SwaggerApiParam({
-    name: 'id',
-    type: String,
-    description: '서비스 ID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  @SwaggerApiOkResponse({
-    status: ServiceResponse.HEALTH_CHECK_SUCCESS.statusCode,
-    description: ServiceResponse.HEALTH_CHECK_SUCCESS.message,
-  })
-  @SwaggerApiErrorResponse({
-    status: ServiceError.SERVICE_NOT_FOUND.statusCode,
-    description: ServiceError.SERVICE_NOT_FOUND.message,
-  })
-  @SwaggerApiErrorResponse({
-    status: ServiceError.SERVICE_HEALTH_CHECK_ERROR.statusCode,
-    description: ServiceError.SERVICE_HEALTH_CHECK_ERROR.message,
-  })
-  @UseGuards(AccessTokenGuard)
-  @Serialize({
-    ...ServiceResponse.HEALTH_CHECK_SUCCESS,
-  })
-  async checkServiceHealth(
-    @Param('id') id: string,
-    @CurrentJwt() jwt: JwtPayload
-  ): Promise<{ status: string; timestamp: Date }> {
-    return this.serviceManager.checkServiceHealth(id);
   }
 }

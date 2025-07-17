@@ -5,7 +5,7 @@ import { DataSource } from 'typeorm';
 import { BaseRepository } from '@krgeobuk/core/repositories';
 import { LimitType, SortOrderType, SortByBaseType } from '@krgeobuk/core/enum';
 import type { PaginatedResult } from '@krgeobuk/core/interfaces';
-import type { ServiceSearchQuery, ServiceSearchResult } from '@krgeobuk/service/interfaces';
+import type { ServiceSearchQuery } from '@krgeobuk/service/interfaces';
 
 import { ServiceEntity } from './entities/service.entity.js';
 
@@ -18,12 +18,12 @@ export class ServiceRepository extends BaseRepository<ServiceEntity> {
   /**
    * 서비스 검색 (페이지네이션, 필터링)
    */
-  async search(query: ServiceSearchQuery): Promise<PaginatedResult<ServiceSearchResult>> {
+  async searchServices(
+    query: ServiceSearchQuery
+  ): Promise<PaginatedResult<Partial<ServiceEntity>>> {
     const {
       name,
-      description,
       isVisible,
-      isVisibleByRole,
       page = 1,
       limit = LimitType.FIFTEEN,
       sortOrder = SortOrderType.DESC,
@@ -32,26 +32,30 @@ export class ServiceRepository extends BaseRepository<ServiceEntity> {
 
     const skip = (page - 1) * limit;
     const serviceAlias = 'service';
-    const qb = this.createQueryBuilder(serviceAlias);
+
+    const qb = this.createQueryBuilder(serviceAlias).select([
+      `${serviceAlias}.id`,
+      `${serviceAlias}.name`,
+      `${serviceAlias}.description`,
+      `${serviceAlias}.base_url`,
+      `${serviceAlias}.is_visible`,
+      `${serviceAlias}.is_visible_by_role`,
+      `${serviceAlias}.display_name`,
+      `${serviceAlias}.icon_url`,
+    ]);
 
     // 필터링 조건 추가
     if (name) {
       qb.andWhere(`${serviceAlias}.name LIKE :name`, { name: `%${name}%` });
     }
-    if (description) {
-      qb.andWhere(`${serviceAlias}.description LIKE :description`, {
-        description: `%${description}%`,
-      });
-    }
     if (typeof isVisible === 'boolean') {
-      qb.andWhere(`${serviceAlias}.isVisible = :isVisible`, { isVisible });
-    }
-    if (typeof isVisibleByRole === 'boolean') {
-      qb.andWhere(`${serviceAlias}.isVisibleByRole = :isVisibleByRole`, { isVisibleByRole });
+      qb.andWhere(`${serviceAlias}.is_visible = :isVisible`, { isVisible });
     }
 
     // 정렬 및 페이지네이션
-    qb.orderBy(`${serviceAlias}.${sortBy}`, sortOrder).offset(skip).limit(limit);
+    qb.orderBy(`${serviceAlias}.${sortBy}`, sortOrder);
+
+    qb.offset(skip).limit(limit);
 
     const [rows, total] = await Promise.all([qb.getRawMany(), qb.getCount()]);
 
@@ -64,9 +68,6 @@ export class ServiceRepository extends BaseRepository<ServiceEntity> {
       isVisibleByRole: row[`${serviceAlias}_is_visible_by_role`],
       displayName: row[`${serviceAlias}_display_name`],
       iconUrl: row[`${serviceAlias}_icon_url`],
-      createdAt: row[`${serviceAlias}_created_at`],
-      updatedAt: row[`${serviceAlias}_updated_at`],
-      deletedAt: row[`${serviceAlias}_deleted_at`],
     }));
 
     const totalPages = Math.ceil(total / limit);
