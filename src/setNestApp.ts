@@ -1,13 +1,13 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { DefaultConfig } from '@common/interfaces/index.js';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import cookieParser from 'cookie-parser';
 
 import { HttpExceptionFilter } from '@krgeobuk/core/filters';
 import { LoggingInterceptor } from '@krgeobuk/core/interceptors';
 
-import cookieParser from 'cookie-parser';
+import { DefaultConfig } from '@common/interfaces/index.js';
 
 // import { SeederService } from './seeder/seeder.service';
 
@@ -26,11 +26,6 @@ export function setNestApp(
       // disableErrorMessages: true, // 유효성 검사에서 오류 반환시 오류 메시지를 없애줌
     })
   );
-
-  // const allowedOrigins =
-  //   mode === 'production'
-  //     ? ['https://www.krgeobuk.com', 'https://api.krgeobuk.com'] // 배포 도메인
-  //     : ['http://localhost:8000', 'http://127.0.0.1:8000']; // 로컬 개발 도메인
 
   app.enableCors({
     origin: allowedOrigins, // 허용할 도메인
@@ -55,3 +50,4 @@ export function setNestApp(
   // const seederService = app.get(SeederService);
   // await seederService.seed();
 }
+
