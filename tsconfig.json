@@ -1,6 +1,6 @@
 {
   "extends": "@krgeobuk/tsconfig/nest",
-  "compilerOptions": {
+  "compilerOptions": {    
     "noEmit": false,
     "outDir": "./dist", // 프로젝트별로 필요시 오버라이드
     "baseUrl": "./", // 프로젝트별로 필요시 오버라이드
