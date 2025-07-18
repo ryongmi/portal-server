@@ -12,9 +12,9 @@ services:
   #     - frontend
   mysql:
     image: mysql:8
-    container_name: auth-mysql
+    container_name: portal-mysql
     ports:
-      - 3307:3306
+      - 3309:3306
     env_file:
       - ./envs/.env.local
     environment:
@@ -27,13 +27,13 @@ services:
       # - ./config/mysql/my.cnf:/etc/mysql/my.cnf
       # - ./config/mysql/conf.d:/etc/mysql/conf.d
     networks:
-      - network-auth
+      - portal-network
 
   redis:
     image: redis:alpine
-    container_name: auth-redis
+    container_name: portal-redis
     ports:
-      - 6380:6379
+      - 6382:6379
     env_file:
       - ./envs/.env.local
     environment:
@@ -41,22 +41,21 @@ services:
     volumes:
       - ./data/redis:/data
     networks:
-      - network-auth
+      - portal-network
     command: ['redis-server', '--requirepass', '1234qwer']
     depends_on:
       - mysql
 
   server:
-    image: krgeobuk/auth-server:local
-    container_name: auth-server
+    image: krgeobuk/portal-server:local
+    container_name: portal-server
     build:
       context: .
       dockerfile: Dockerfile
       target: local
     ports:
-      - 8200:8000
-      - 8210:8210 # TCP 포트
-      - 9229:9229 # Node.js 디버깅 포트
+      - 8200:8200
+      - 9231:9229 # Node.js 디버깅 포트
     env_file:
       - ./envs/.env.local
     environment:
@@ -70,13 +69,17 @@ services:
       - /app/dist
       - /app/node_modules # 익명 볼륨
     networks:
-      - network-auth
+      - portal-network
+      - msa-network
+      - shared-network
     depends_on:
       - redis
       - mysql
 
 networks:
-  network-auth:
+  portal-network:
     driver: bridge
-  network-shared:
+  msa-network:
+    external: true
+  shared-network:
     external: true
