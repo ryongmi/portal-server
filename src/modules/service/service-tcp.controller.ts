@@ -49,7 +49,9 @@ export class ServiceTcpController {
    * 서비스 ID로 상세 정보 조회 (가공된 데이터)
    */
   @MessagePattern('service.getDetailById')
-  async getServiceDetailById(@Payload() data: { serviceId: string }): Promise<ServiceDetail | null> {
+  async getServiceDetailById(
+    @Payload() data: { serviceId: string }
+  ): Promise<ServiceDetail | null> {
     this.logger.debug('TCP 서비스 상세 조회 요청', {
       serviceId: data.serviceId,
     });
@@ -82,7 +84,7 @@ export class ServiceTcpController {
 
     try {
       const services = await this.serviceManager.findByAnd({ name: data.name });
-      const service = services.length > 0 ? services[0] : null;
+      const service = services.length > 0 ? services[0]! : null;
 
       this.logger.debug('TCP 서비스 이름 조회 완료', {
         name: data.name,
@@ -110,7 +112,7 @@ export class ServiceTcpController {
 
     try {
       // N+1 쿼리 문제 해결: 단일 쿼리로 모든 서비스 조회
-      const services = await this.serviceManager.findByServiceIds(data.serviceIds);
+      const services = await this.serviceManager.findByIds(data.serviceIds);
 
       this.logger.debug('TCP 서비스 배치 조회 성공', {
         requestedCount: data.serviceIds.length,

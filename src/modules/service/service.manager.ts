@@ -162,7 +162,7 @@ export class ServiceManager {
         this.logger.debug('서비스 검색 성공', {
           page: query.page,
           limit: query.limit,
-          totalCount: services.pageInfo.totalCount,
+          totalCount: services.pageInfo.totalItems,
           serviceCount: items.length,
         });
 
