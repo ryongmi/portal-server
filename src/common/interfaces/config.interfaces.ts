@@ -20,22 +20,6 @@ export interface RedisConfig {
   password: string | undefined;
 }
 
-export interface GoogleConfig {
-  clientId: string | undefined;
-  clientSecret: string | undefined;
-  redirectUrl: string | undefined;
-  tokenUrl: string | undefined;
-  userInfoUrl: string | undefined;
-}
-
-export interface NaverConfig {
-  clientId: string | undefined;
-  clientSecret: string | undefined;
-  redirectUrl: string | undefined;
-  tokenUrl: string | undefined;
-  userInfoUrl: string | undefined;
-}
-
 export interface JwtConfig {
   accessPrivateKey: string | undefined;
   accessPublicKey: string | undefined;

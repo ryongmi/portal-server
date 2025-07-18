@@ -6,14 +6,14 @@ export default (): DefaultConfig => {
   if (mode !== 'local' && mode !== 'development' && mode !== 'production') {
     return {
       mode: undefined,
-      port: parseInt(process.env.PORT ?? '8000', 10),
+      port: parseInt(process.env.PORT ?? '8200', 10),
       corsOrigins: process.env.CORS_ORIGINS,
     };
   }
 
   return {
     mode,
-    port: parseInt(process.env.PORT ?? '8000', 10),
+    port: parseInt(process.env.PORT ?? '8200', 10),
     corsOrigins: process.env.CORS_ORIGINS,
   };
 };
