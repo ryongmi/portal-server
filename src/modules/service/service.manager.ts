@@ -156,7 +156,6 @@ export class ServiceManager {
       try {
         // authz-server에서 각 서비스의 가시성 역할 수 조회
         const visibleRoleCounts = await this.getVisibleRoleCountsByServiceIds(serviceIds);
-
         const items = this.buildServiceSearchResults(services.items, visibleRoleCounts);
 
         this.logger.debug('서비스 검색 성공', {
@@ -425,11 +424,11 @@ export class ServiceManager {
    */
   private async getVisibleRoleCountsByServiceIds(
     serviceIds: string[]
-  ): Promise<Map<string, number>> {
+  ): Promise<Record<string, number>> {
     try {
       // authz-server의 service-visible-role TCP API 호출
       return await firstValueFrom(
-        this.authzClient.send<Map<string, number>>(
+        this.authzClient.send<Record<string, number>>(
           ServiceVisibleRoleTcpPatterns.FIND_ROLE_COUNTS_BATCH,
           {
             serviceIds,
@@ -442,8 +441,8 @@ export class ServiceManager {
         serviceIds,
       });
 
-      // 폴백 처리: 빈 Map 반환
-      return new Map<string, number>();
+      // 폴백 처리: 빈 객체 반환
+      return {};
     }
   }
 
@@ -483,10 +482,10 @@ export class ServiceManager {
    */
   private buildServiceSearchResults(
     services: Partial<ServiceEntity>[],
-    visibleRoleCounts: Map<string, number>
+    visibleRoleCounts: Record<string, number>
   ): ServiceSearchResult[] {
     return services.map((service) => {
-      const visibleRoleCount = visibleRoleCounts.get(service.id!) || 0;
+      const visibleRoleCount = visibleRoleCounts[service.id!] || 0;
 
       return {
         id: service.id!,
