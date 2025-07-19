@@ -34,14 +34,14 @@ export class ServiceRepository extends BaseRepository<ServiceEntity> {
     const serviceAlias = 'service';
 
     const qb = this.createQueryBuilder(serviceAlias).select([
-      `${serviceAlias}.id`,
-      `${serviceAlias}.name`,
-      `${serviceAlias}.description`,
-      `${serviceAlias}.base_url`,
-      `${serviceAlias}.is_visible`,
-      `${serviceAlias}.is_visible_by_role`,
-      `${serviceAlias}.display_name`,
-      `${serviceAlias}.icon_url`,
+      `${serviceAlias}.id AS id`,
+      `${serviceAlias}.name AS name`,
+      `${serviceAlias}.description AS description`,
+      `${serviceAlias}.base_url AS baseUrl`,
+      `${serviceAlias}.is_visible AS isVisible`,
+      `${serviceAlias}.is_visible_by_role AS isVisibleByRole`,
+      `${serviceAlias}.display_name AS displayName`,
+      `${serviceAlias}.icon_url AS iconUrl`,
     ]);
 
     // 필터링 조건 추가
@@ -57,18 +57,7 @@ export class ServiceRepository extends BaseRepository<ServiceEntity> {
 
     qb.offset(skip).limit(limit);
 
-    const [rows, total] = await Promise.all([qb.getRawMany(), qb.getCount()]);
-
-    const items = rows.map((row) => ({
-      id: row[`${serviceAlias}_id`],
-      name: row[`${serviceAlias}_name`],
-      description: row[`${serviceAlias}_description`],
-      baseUrl: row[`${serviceAlias}_base_url`],
-      isVisible: row[`${serviceAlias}_is_visible`],
-      isVisibleByRole: row[`${serviceAlias}_is_visible_by_role`],
-      displayName: row[`${serviceAlias}_display_name`],
-      iconUrl: row[`${serviceAlias}_icon_url`],
-    }));
+    const [items, total] = await Promise.all([qb.getRawMany(), qb.getCount()]);
 
     const totalPages = Math.ceil(total / limit);
     const pageInfo = {
