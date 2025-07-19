@@ -1,7 +1,16 @@
 import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
-import type { ServiceDetail, ServiceFilter } from '@krgeobuk/service/interfaces';
+import { TcpOperationResponse, TcpSearchResponse } from '@krgeobuk/core/interfaces';
+import type {
+  ServiceSearchQuery,
+  ServiceSearchResult,
+  ServiceDetail,
+  CreateService,
+  UpdateService,
+} from '@krgeobuk/service/interfaces';
+import { ServiceTcpPatterns, TcpServiceId } from '@krgeobuk/service/tcp';
+import { Service } from '@krgeobuk/shared/service';
 
 import { ServiceManager } from './service.manager.js';
 import { ServiceEntity } from './entities/service.entity.js';
@@ -16,28 +25,47 @@ export class ServiceTcpController {
 
   constructor(private readonly serviceManager: ServiceManager) {}
 
-  // ==================== 조회 메서드 ====================
+  /**
+   * 서비스 목록 검색 및 페이지네이션
+   */
+  @MessagePattern(ServiceTcpPatterns.SEARCH)
+  async searchServices(
+    @Payload() query: ServiceSearchQuery
+  ): Promise<TcpSearchResponse<ServiceSearchResult>> {
+    this.logger.debug('TCP service search request', {
+      hasNameFilter: !!query.name,
+      hasIsVisibleFilter: !!query.isVisible,
+    });
+
+    try {
+      const result = await this.serviceManager.searchServices(query);
+      this.logger.log('TCP service search completed', {
+        resultCount: result.items.length,
+        totalItems: result.pageInfo.totalItems,
+      });
+      return result;
+    } catch (error: unknown) {
+      this.logger.error('TCP service search failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        query,
+      });
+      throw error;
+    }
+  }
 
   /**
-   * 서비스 ID로 서비스 정보 조회
+   * 서비스 ID로 상세 정보 조회
    */
-  @MessagePattern('service.findById')
-  async findServiceById(@Payload() data: { serviceId: string }): Promise<ServiceEntity | null> {
-    this.logger.debug('TCP 서비스 조회 요청', {
-      serviceId: data.serviceId,
-    });
+  @MessagePattern(ServiceTcpPatterns.FIND_BY_ID)
+  async findById(@Payload() data: TcpServiceId): Promise<Service | null> {
+    this.logger.debug(`TCP service detail request: ${data.serviceId}`);
 
     try {
       const service = await this.serviceManager.findById(data.serviceId);
-
-      this.logger.debug('TCP 서비스 조회 완료', {
-        serviceId: data.serviceId,
-        found: !!service,
-      });
-
+      this.logger.debug(`TCP service detail response: ${service?.name || 'not found'}`);
       return service;
     } catch (error: unknown) {
-      this.logger.error('TCP 서비스 조회 실패', {
+      this.logger.error('TCP service detail failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
         serviceId: data.serviceId,
       });
@@ -46,82 +74,18 @@ export class ServiceTcpController {
   }
 
   /**
-   * 서비스 ID로 상세 정보 조회 (가공된 데이터)
+   * 여러 서비스 ID로 서비스 목록 조회
    */
-  @MessagePattern('service.getDetailById')
-  async getServiceDetailById(
-    @Payload() data: { serviceId: string }
-  ): Promise<ServiceDetail | null> {
-    this.logger.debug('TCP 서비스 상세 조회 요청', {
-      serviceId: data.serviceId,
-    });
+  @MessagePattern(ServiceTcpPatterns.FIND_BY_IDS)
+  async findByIds(@Payload() data: { serviceIds: string[] }): Promise<Service[]> {
+    this.logger.debug(`TCP service findByIds request: ${data.serviceIds.length}`);
 
     try {
-      const detail = await this.serviceManager.getServiceById(data.serviceId);
-
-      this.logger.debug('TCP 서비스 상세 조회 완료', {
-        serviceId: data.serviceId,
-      });
-
-      return detail;
-    } catch (error: unknown) {
-      this.logger.error('TCP 서비스 상세 조회 실패', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-        serviceId: data.serviceId,
-      });
-      throw error;
-    }
-  }
-
-  /**
-   * 서비스명으로 서비스 조회
-   */
-  @MessagePattern('service.findByName')
-  async findServiceByName(@Payload() data: { name: string }): Promise<ServiceEntity | null> {
-    this.logger.debug('TCP 서비스 이름 조회 요청', {
-      name: data.name,
-    });
-
-    try {
-      const services = await this.serviceManager.findByAnd({ name: data.name });
-      const service = services.length > 0 ? services[0]! : null;
-
-      this.logger.debug('TCP 서비스 이름 조회 완료', {
-        name: data.name,
-        found: !!service,
-      });
-
-      return service;
-    } catch (error: unknown) {
-      this.logger.error('TCP 서비스 이름 조회 실패', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-        name: data.name,
-      });
-      throw error;
-    }
-  }
-
-  /**
-   * 여러 서비스 ID로 서비스 목록 조회 (최적화된 배치 처리)
-   */
-  @MessagePattern('service.findByIds')
-  async findServicesByIds(@Payload() data: { serviceIds: string[] }): Promise<ServiceEntity[]> {
-    this.logger.debug('TCP 서비스 배치 조회 요청', {
-      serviceCount: data.serviceIds.length,
-    });
-
-    try {
-      // N+1 쿼리 문제 해결: 단일 쿼리로 모든 서비스 조회
       const services = await this.serviceManager.findByIds(data.serviceIds);
-
-      this.logger.debug('TCP 서비스 배치 조회 성공', {
-        requestedCount: data.serviceIds.length,
-        foundCount: services.length,
-      });
-
+      this.logger.debug(`TCP service findByIds response: ${services.length || 'not found'}`);
       return services;
     } catch (error: unknown) {
-      this.logger.error('TCP 서비스 배치 조회 실패', {
+      this.logger.error('TCP service findByIds failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
         serviceCount: data.serviceIds.length,
       });
@@ -130,93 +94,92 @@ export class ServiceTcpController {
   }
 
   /**
-   * 필터 조건으로 서비스 목록 조회
+   * 새로운 서비스 생성
    */
-  @MessagePattern('service.findByFilter')
-  async findServicesByFilter(@Payload() data: { filter: ServiceFilter }): Promise<ServiceEntity[]> {
-    this.logger.log(`TCP: Finding services by filter:`, data.filter);
+  @MessagePattern(ServiceTcpPatterns.CREATE)
+  async create(@Payload() data: CreateService): Promise<TcpOperationResponse> {
+    this.logger.log('TCP service creation requested', {
+      name: data.name,
+      displayName: data.displayName,
+    });
 
     try {
-      return await this.serviceManager.findByAnd(data.filter);
-    } catch (error) {
-      this.logger.error(`TCP: Error finding services by filter:`, error);
+      await this.serviceManager.createService(data);
+      this.logger.log('TCP service creation completed', {
+        name: data.name,
+        displayName: data.displayName,
+      });
+      return { success: true };
+    } catch (error: unknown) {
+      this.logger.error('TCP service creation failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        serviceName: data.name,
+        displayName: data.displayName,
+      });
       throw error;
     }
   }
 
-  // ==================== 존재 확인 ====================
+  /**
+   * 서비스 정보 수정
+   */
+  @MessagePattern(ServiceTcpPatterns.UPDATE)
+  async update(
+    @Payload() data: { serviceId: string; updateData: UpdateService }
+  ): Promise<TcpOperationResponse> {
+    this.logger.log('TCP service update requested', { serviceId: data.serviceId });
+
+    try {
+      await this.serviceManager.updateService(data.serviceId, data.updateData);
+      this.logger.log('TCP service update completed', { serviceId: data.serviceId });
+      return { success: true };
+    } catch (error: unknown) {
+      this.logger.error('TCP service update failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        serviceId: data.serviceId,
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * 서비스 삭제 (소프트 삭제)
+   */
+  @MessagePattern(ServiceTcpPatterns.DELETE)
+  async delete(@Payload() data: TcpServiceId): Promise<TcpOperationResponse> {
+    this.logger.log('TCP service deletion requested', { serviceId: data.serviceId });
+
+    try {
+      await this.serviceManager.deleteService(data.serviceId);
+      this.logger.log('TCP service deletion completed', { serviceId: data.serviceId });
+      return { success: true };
+    } catch (error: unknown) {
+      this.logger.error('TCP service deletion failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        serviceId: data.serviceId,
+      });
+      throw error;
+    }
+  }
 
   /**
    * 서비스 존재 여부 확인
    */
-  @MessagePattern('service.exists')
-  async checkServiceExists(@Payload() data: { serviceId: string }): Promise<boolean> {
-    this.logger.debug('TCP 서비스 존재 확인 요청', {
-      serviceId: data.serviceId,
-    });
+  @MessagePattern(ServiceTcpPatterns.EXISTS)
+  async exists(@Payload() data: TcpServiceId): Promise<boolean> {
+    this.logger.debug(`TCP service existence check: ${data.serviceId}`);
 
     try {
       const service = await this.serviceManager.findById(data.serviceId);
       const exists = !!service;
-
-      this.logger.debug('TCP 서비스 존재 확인 완료', {
-        serviceId: data.serviceId,
-        exists,
-      });
-
+      this.logger.debug(`TCP service exists: ${exists}`);
       return exists;
     } catch (error: unknown) {
-      this.logger.error('TCP 서비스 존재 확인 실패', {
+      this.logger.error('TCP service existence check failed', {
         error: error instanceof Error ? error.message : 'Unknown error',
         serviceId: data.serviceId,
       });
       return false;
-    }
-  }
-
-  /**
-   * 가시성이 true인 서비스 목록 조회
-   */
-  @MessagePattern('service.findVisible')
-  async findVisibleServices(@Payload() _data?: unknown): Promise<ServiceEntity[]> {
-    this.logger.debug('TCP 가시성 서비스 조회 요청');
-
-    try {
-      const services = await this.serviceManager.findByAnd({ isVisible: true });
-
-      this.logger.debug('TCP 가시성 서비스 조회 완료', {
-        count: services.length,
-      });
-
-      return services;
-    } catch (error: unknown) {
-      this.logger.error('TCP 가시성 서비스 조회 실패', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
-      throw error;
-    }
-  }
-
-  /**
-   * 역할별 가시성이 true인 서비스 목록 조회
-   */
-  @MessagePattern('service.findVisibleByRole')
-  async findVisibleByRoleServices(@Payload() _data?: unknown): Promise<ServiceEntity[]> {
-    this.logger.debug('TCP 역할별 가시성 서비스 조회 요청');
-
-    try {
-      const services = await this.serviceManager.findByAnd({ isVisibleByRole: true });
-
-      this.logger.debug('TCP 역할별 가시성 서비스 조회 완료', {
-        count: services.length,
-      });
-
-      return services;
-    } catch (error: unknown) {
-      this.logger.error('TCP 역할별 가시성 서비스 조회 실패', {
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
-      throw error;
     }
   }
 }
