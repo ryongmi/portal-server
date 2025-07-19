@@ -2,7 +2,7 @@ import { Entity, Column } from 'typeorm';
 
 import { BaseEntityUUID } from '@krgeobuk/core/entities';
 
-@Entity()
+@Entity('service')
 export class ServiceEntity extends BaseEntityUUID {
   @Column({ type: 'varchar', length: 50, unique: true })
   name!: string;
