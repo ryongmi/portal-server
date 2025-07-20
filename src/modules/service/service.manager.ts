@@ -33,6 +33,29 @@ export class ServiceManager {
   // ==================== PUBLIC METHODS ====================
 
   /**
+   * 모든 서비스 목록 조회
+   */
+  async findAll(): Promise<ServiceEntity[]> {
+    try {
+      const services = await this.serviceRepo.find({
+        order: { name: 'ASC' }
+      });
+
+      this.logger.debug('모든 서비스 목록 조회 성공', {
+        serviceCount: services.length,
+      });
+
+      return services;
+    } catch (error: unknown) {
+      this.logger.error('모든 서비스 목록 조회 실패', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+
+      throw ServiceException.serviceFetchError();
+    }
+  }
+
+  /**
    * ID로 서비스 조회 (null 반환)
    */
   async findById(serviceId: string): Promise<ServiceEntity | null> {

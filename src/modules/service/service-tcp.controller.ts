@@ -5,15 +5,19 @@ import { TcpOperationResponse, TcpSearchResponse } from '@krgeobuk/core/interfac
 import type {
   ServiceSearchQuery,
   ServiceSearchResult,
-  ServiceDetail,
   CreateService,
   UpdateService,
 } from '@krgeobuk/service/interfaces';
-import { ServiceTcpPatterns, TcpServiceId } from '@krgeobuk/service/tcp';
+import {
+  ServiceTcpPatterns,
+  TcpServiceId,
+  //  TcpSerivceUpdate
+} from '@krgeobuk/service/tcp';
+// import { TcpServiceId, TcpSerivceUpdate } from '@krgeobuk/service/tcp/interface';
+// import { ServiceTcpPatterns } from '@krgeobuk/service/tcp/patterns';
 import { Service } from '@krgeobuk/shared/service';
 
 import { ServiceManager } from './service.manager.js';
-import { ServiceEntity } from './entities/service.entity.js';
 
 /**
  * Service 도메인 TCP 마이크로서비스 컨트롤러
@@ -24,6 +28,27 @@ export class ServiceTcpController {
   private readonly logger = new Logger(ServiceTcpController.name);
 
   constructor(private readonly serviceManager: ServiceManager) {}
+
+  /**
+   * 모든 서비스 목록 조회 (필터링 없음)
+   */
+  @MessagePattern(ServiceTcpPatterns.FIND_ALL)
+  async findAll(): Promise<Service[]> {
+    this.logger.debug('TCP service findAll request');
+
+    try {
+      const services = await this.serviceManager.findAll();
+      this.logger.debug('TCP service findAll response', {
+        serviceCount: services.length,
+      });
+      return services;
+    } catch (error: unknown) {
+      this.logger.error('TCP service findAll failed', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      throw error;
+    }
+  }
 
   /**
    * 서비스 목록 검색 및 페이지네이션
