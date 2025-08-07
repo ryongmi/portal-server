@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { createTypeOrmConfig } from '@krgeobuk/database-config'; // 공통 패키지에서 import
 
@@ -15,8 +15,7 @@ const entitiesPath = join(__dirname, '/../**/*.entity{.ts,.js}');
   imports: [TypeOrmModule.forRootAsync(createTypeOrmConfig([entitiesPath]))],
   exports: [TypeOrmModule],
 })
-export class DatabaseModule {
-}
+export class DatabaseModule {}
 
 // import { Module } from "@nestjs/common";
 // import { ConfigService } from "@nestjs/config";
@@ -45,3 +44,4 @@ export class DatabaseModule {
 //   ],
 // })
 // export class DatabaseModule {}
+
