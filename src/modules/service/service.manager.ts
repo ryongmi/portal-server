@@ -38,7 +38,7 @@ export class ServiceManager {
   async findAll(): Promise<ServiceEntity[]> {
     try {
       const services = await this.serviceRepo.find({
-        order: { name: 'ASC' }
+        order: { name: 'ASC' },
       });
 
       this.logger.debug('모든 서비스 목록 조회 성공', {

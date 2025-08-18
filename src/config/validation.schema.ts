@@ -30,4 +30,3 @@ export const validationSchema = Joi.object({
   ...redisConfigSchema,
   ...jwtConfigSchema,
 });
-

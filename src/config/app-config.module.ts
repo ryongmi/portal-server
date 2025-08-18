@@ -16,4 +16,3 @@ import { validationSchema } from './validation.schema.js';
   ],
 })
 export class AppConfigModule {}
-

@@ -23,6 +23,8 @@ import {
   SwaggerApiErrorResponse,
 } from '@krgeobuk/swagger/decorators';
 import { AccessTokenGuard } from '@krgeobuk/jwt/guards';
+import { RequireRole } from '@krgeobuk/authorization/decorators';
+import { GLOBAL_ROLES } from '@krgeobuk/core/constants';
 import { ServiceResponse } from '@krgeobuk/service/response';
 import { ServiceError } from '@krgeobuk/service/exception';
 import {
@@ -57,6 +59,7 @@ export class ServiceController {
     description: ServiceError.SERVICE_SEARCH_ERROR.message,
   })
   @UseGuards(AccessTokenGuard)
+  @RequireRole(GLOBAL_ROLES.ADMIN)
   @Serialize({
     dto: ServicePaginatedSearchResultDto,
     ...ServiceResponse.SEARCH_SUCCESS,
@@ -93,6 +96,7 @@ export class ServiceController {
     description: ServiceError.SERVICE_FETCH_ERROR.message,
   })
   @UseGuards(AccessTokenGuard)
+  @RequireRole(GLOBAL_ROLES.ADMIN)
   @Serialize({
     dto: ServiceDetailDto,
     ...ServiceResponse.FETCH_SUCCESS,
@@ -124,6 +128,7 @@ export class ServiceController {
     description: ServiceError.SERVICE_ALREADY_EXISTS.message,
   })
   @UseGuards(AccessTokenGuard)
+  @RequireRole(GLOBAL_ROLES.SUPER_ADMIN)
   @Serialize({
     ...ServiceResponse.CREATE_SUCCESS,
   })
@@ -160,6 +165,7 @@ export class ServiceController {
     description: ServiceError.SERVICE_UPDATE_ERROR.message,
   })
   @UseGuards(AccessTokenGuard)
+  @RequireRole(GLOBAL_ROLES.SUPER_ADMIN)
   @Serialize({
     ...ServiceResponse.UPDATE_SUCCESS,
   })
@@ -192,6 +198,7 @@ export class ServiceController {
     description: ServiceError.SERVICE_DELETE_ERROR.message,
   })
   @UseGuards(AccessTokenGuard)
+  @RequireRole(GLOBAL_ROLES.SUPER_ADMIN)
   @Serialize({
     ...ServiceResponse.DELETE_SUCCESS,
   })

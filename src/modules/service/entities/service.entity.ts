@@ -25,4 +25,3 @@ export class ServiceEntity extends BaseEntityUUID {
   @Column({ type: 'varchar', length: 2048, nullable: true })
   iconUrl?: string | null; // UI에 표시할 서비스 아이콘
 }
-
