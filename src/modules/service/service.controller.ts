@@ -23,10 +23,12 @@ import {
   SwaggerApiErrorResponse,
 } from '@krgeobuk/swagger/decorators';
 import { AccessTokenGuard } from '@krgeobuk/jwt/guards';
-import { RequireRole } from '@krgeobuk/authorization/decorators';
+import { AuthorizationGuard } from '@krgeobuk/authorization/guards';
+import { RequireAccess } from '@krgeobuk/authorization/decorators';
 import { GLOBAL_ROLES } from '@krgeobuk/core/constants';
 import { ServiceResponse } from '@krgeobuk/service/response';
 import { ServiceError } from '@krgeobuk/service/exception';
+import { SERVICE_ROLES, SERVICE_PERMISSIONS } from '@krgeobuk/service/constants';
 import {
   ServiceSearchQueryDto,
   ServiceDetailDto,
@@ -58,8 +60,12 @@ export class ServiceController {
     status: ServiceError.SERVICE_SEARCH_ERROR.statusCode,
     description: ServiceError.SERVICE_SEARCH_ERROR.message,
   })
-  @UseGuards(AccessTokenGuard)
-  @RequireRole(GLOBAL_ROLES.ADMIN)
+  @UseGuards(AccessTokenGuard, AuthorizationGuard)
+  @RequireAccess({
+    roles: [GLOBAL_ROLES.ADMIN, SERVICE_ROLES.SERVICE_MANAGER],
+    permissions: [SERVICE_PERMISSIONS.SERVICE_READ],
+    combinationOperator: 'OR',
+  })
   @Serialize({
     dto: ServicePaginatedSearchResultDto,
     ...ServiceResponse.SEARCH_SUCCESS,
@@ -95,8 +101,12 @@ export class ServiceController {
     status: ServiceError.SERVICE_FETCH_ERROR.statusCode,
     description: ServiceError.SERVICE_FETCH_ERROR.message,
   })
-  @UseGuards(AccessTokenGuard)
-  @RequireRole(GLOBAL_ROLES.ADMIN)
+  @UseGuards(AccessTokenGuard, AuthorizationGuard)
+  @RequireAccess({
+    roles: [GLOBAL_ROLES.ADMIN, SERVICE_ROLES.SERVICE_MANAGER],
+    permissions: [SERVICE_PERMISSIONS.SERVICE_READ],
+    combinationOperator: 'OR',
+  })
   @Serialize({
     dto: ServiceDetailDto,
     ...ServiceResponse.FETCH_SUCCESS,
@@ -127,8 +137,12 @@ export class ServiceController {
     status: ServiceError.SERVICE_ALREADY_EXISTS.statusCode,
     description: ServiceError.SERVICE_ALREADY_EXISTS.message,
   })
-  @UseGuards(AccessTokenGuard)
-  @RequireRole(GLOBAL_ROLES.SUPER_ADMIN)
+  @UseGuards(AccessTokenGuard, AuthorizationGuard)
+  @RequireAccess({
+    roles: [GLOBAL_ROLES.SUPER_ADMIN, SERVICE_ROLES.SERVICE_MANAGER],
+    permissions: [SERVICE_PERMISSIONS.SERVICE_CREATE],
+    combinationOperator: 'OR',
+  })
   @Serialize({
     ...ServiceResponse.CREATE_SUCCESS,
   })
@@ -164,8 +178,12 @@ export class ServiceController {
     status: ServiceError.SERVICE_UPDATE_ERROR.statusCode,
     description: ServiceError.SERVICE_UPDATE_ERROR.message,
   })
-  @UseGuards(AccessTokenGuard)
-  @RequireRole(GLOBAL_ROLES.SUPER_ADMIN)
+  @UseGuards(AccessTokenGuard, AuthorizationGuard)
+  @RequireAccess({
+    roles: [GLOBAL_ROLES.SUPER_ADMIN, SERVICE_ROLES.SERVICE_MANAGER],
+    permissions: [SERVICE_PERMISSIONS.SERVICE_UPDATE],
+    combinationOperator: 'OR',
+  })
   @Serialize({
     ...ServiceResponse.UPDATE_SUCCESS,
   })
@@ -197,8 +215,12 @@ export class ServiceController {
     status: ServiceError.SERVICE_DELETE_ERROR.statusCode,
     description: ServiceError.SERVICE_DELETE_ERROR.message,
   })
-  @UseGuards(AccessTokenGuard)
-  @RequireRole(GLOBAL_ROLES.SUPER_ADMIN)
+  @UseGuards(AccessTokenGuard, AuthorizationGuard)
+  @RequireAccess({
+    roles: [GLOBAL_ROLES.SUPER_ADMIN, SERVICE_ROLES.SERVICE_MANAGER],
+    permissions: [SERVICE_PERMISSIONS.SERVICE_DELETE],
+    combinationOperator: 'OR',
+  })
   @Serialize({
     ...ServiceResponse.DELETE_SUCCESS,
   })

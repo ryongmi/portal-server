@@ -21,16 +21,5 @@ export interface RedisConfig {
 }
 
 export interface JwtConfig {
-  accessPrivateKey: string | undefined;
   accessPublicKey: string | undefined;
-  refreshPrivateKey: string | undefined;
-  refreshPublicKey: string | undefined;
-  accessExpiresIn: string | undefined;
-  refreshExpiresIn: string | undefined;
-  sessionCookiePath: string | undefined;
-  refreshMaxAge: number | undefined;
-  refreshStore: string | undefined;
-  blackListStore: string | undefined;
-  naverStateStore: string | undefined;
-  googleStateStore: string | undefined;
 }
