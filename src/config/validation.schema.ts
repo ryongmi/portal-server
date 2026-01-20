@@ -6,6 +6,13 @@ const defaultConfigSchema = {
   CORS_ORIGINS: Joi.string().required(),
 };
 
+const clientConfigSchema = {
+  AUTH_SERVICE_HOST: Joi.string().default('auth-server'),
+  AUTH_SERVICE_PORT: Joi.number().default(8010),
+  AUTHZ_SERVICE_HOST: Joi.string().default('authz-server'),
+  AUTHZ_SERVICE_PORT: Joi.number().default(8110),
+};
+
 const mysqlConfigSchema = {
   MYSQL_HOST: Joi.string().required(),
   MYSQL_PORT: Joi.number().required(),
@@ -18,6 +25,9 @@ const redisConfigSchema = {
   REDIS_HOST: Joi.string().required(),
   REDIS_PORT: Joi.number().required(),
   REDIS_PASSWORD: Joi.string().required(),
+  // Redis 키 환경별 분리를 위한 prefix (선택사항)
+  // 예: dev, staging, prod 또는 빈 문자열
+  REDIS_KEY_PREFIX: Joi.string().allow('').optional(),
 };
 
 const jwtConfigSchema = {
@@ -26,6 +36,7 @@ const jwtConfigSchema = {
 
 export const validationSchema = Joi.object({
   ...defaultConfigSchema,
+  ...clientConfigSchema,
   ...mysqlConfigSchema,
   ...redisConfigSchema,
   ...jwtConfigSchema,
