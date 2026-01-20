@@ -20,6 +20,7 @@ async function bootstrap(): Promise<void> {
   const configService = app.get(ConfigService);
 
   const port = configService.get<DefaultConfig['port']>('port')!;
+  const tcpPort = configService.get<DefaultConfig['tcpPort']>('tcpPort')!;
 
   // 글로벌 설정
   setNestApp(app, configService);
@@ -32,7 +33,7 @@ async function bootstrap(): Promise<void> {
     transport: Transport.TCP,
     options: {
       host: '0.0.0.0',
-      port: 8210,
+      port: tcpPort,
     },
   });
 
