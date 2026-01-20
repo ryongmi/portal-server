@@ -4,6 +4,13 @@ export interface DefaultConfig {
   corsOrigins: string | undefined;
 }
 
+export interface ClientConfig {
+  authServiceHost: string | undefined;
+  authServicePort: number | undefined;
+  authzServiceHost: string | undefined;
+  authzServicePort: number | undefined;
+}
+
 export interface MysqlConfig {
   host: string | undefined;
   port: number | undefined;
@@ -18,6 +25,7 @@ export interface RedisConfig {
   host: string | undefined;
   port: number | undefined;
   password: string | undefined;
+  keyPrefix: string | undefined;
 }
 
 export interface JwtConfig {

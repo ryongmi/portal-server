@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { default as defaultConfig } from './default.js';
+import { clientConfig } from './client.js';
 import { mysqlConfig, redisConfig } from './database.js';
 import { jwtConfig } from './jwt.js';
 import { validationSchema } from './validation.schema.js';
@@ -10,7 +11,7 @@ import { validationSchema } from './validation.schema.js';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [defaultConfig, mysqlConfig, redisConfig, jwtConfig],
+      load: [defaultConfig, clientConfig, mysqlConfig, redisConfig, jwtConfig],
       validationSchema,
     }),
   ],
