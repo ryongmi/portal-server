@@ -11,6 +11,7 @@ import { AppConfigModule } from '@config/index.js';
 import { SharedClientsModule } from '@common/clients/shared-clients.module.js';
 import { JwtModule } from '@common/jwt/jwt.module.js';
 import { ServiceModule } from '@modules/service/index.js';
+import { HealthModule } from '@modules/health/index.js';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ServiceModule } from '@modules/service/index.js';
     DatabaseModule,
     RedisModule,
     ServiceModule,
+    HealthModule,
   ],
   providers: [
     {
