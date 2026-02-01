@@ -2,8 +2,8 @@ import Joi from 'joi';
 
 const defaultConfigSchema = {
   NODE_ENV: Joi.string().valid('local', 'development', 'production').required(),
-  PORT: Joi.number().default(8200),
-  TCP_PORT: Joi.number().default(8210),
+  PORT: Joi.number().required(),
+  TCP_PORT: Joi.number().required(),
   CORS_ORIGINS: Joi.string().required(),
 };
 
