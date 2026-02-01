@@ -1,34 +1,34 @@
 export interface DefaultConfig {
-  mode: 'local' | 'development' | 'production' | undefined;
-  port: number | undefined;
-  tcpPort: number | undefined;
-  corsOrigins: string | undefined;
+  mode: 'local' | 'development' | 'production';
+  port: number;
+  tcpPort: number;
+  corsOrigins: string;
 }
 
 export interface ClientConfig {
-  authServiceHost: string | undefined;
-  authServicePort: number | undefined;
-  authzServiceHost: string | undefined;
-  authzServicePort: number | undefined;
+  authServiceHost: string;
+  authServicePort: number;
+  authzServiceHost: string;
+  authzServicePort: number;
 }
 
 export interface MysqlConfig {
-  host: string | undefined;
-  port: number | undefined;
-  username: string | undefined;
-  password: string | undefined;
-  name: string | undefined;
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  name: string;
   synchronize: boolean;
   logging: boolean;
 }
 
 export interface RedisConfig {
-  host: string | undefined;
-  port: number | undefined;
-  password: string | undefined;
+  host: string;
+  port: number;
+  password: string;
   keyPrefix: string | undefined;
 }
 
 export interface JwtConfig {
-  accessPublicKey: string | undefined;
+  accessPublicKey: string;
 }

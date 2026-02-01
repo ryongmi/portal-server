@@ -5,17 +5,17 @@ export default (): DefaultConfig => {
 
   if (mode !== 'local' && mode !== 'development' && mode !== 'production') {
     return {
-      mode: undefined,
-      port: parseInt(process.env.PORT ?? '8200', 10),
-      tcpPort: parseInt(process.env.TCP_PORT ?? '8210', 10),
-      corsOrigins: process.env.CORS_ORIGINS,
+      mode: 'local',
+      port: parseInt(process.env.PORT! ?? '8200', 10),
+      tcpPort: parseInt(process.env.TCP_PORT! ?? '8210', 10),
+      corsOrigins: process.env.CORS_ORIGINS!,
     };
   }
 
   return {
     mode,
-    port: parseInt(process.env.PORT ?? '8200', 10),
-    tcpPort: parseInt(process.env.TCP_PORT ?? '8210', 10),
-    corsOrigins: process.env.CORS_ORIGINS,
+    port: parseInt(process.env.PORT! ?? '8200', 10),
+    tcpPort: parseInt(process.env.TCP_PORT! ?? '8210', 10),
+    corsOrigins: process.env.CORS_ORIGINS!,
   };
 };

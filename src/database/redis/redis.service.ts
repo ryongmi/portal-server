@@ -7,7 +7,7 @@ import { BaseRedisService } from '@krgeobuk/database-config/redis';
 import { REDIS_CLIENT_TOKEN } from '@krgeobuk/database-config/constants';
 
 // import { _REDIS_BASE_KEYS } from '@common/constants/index.js';
-import { RedisConfig } from '@/common/interfaces/index.js';
+import { RedisConfig } from '@common/interfaces/index.js';
 
 @Injectable()
 export class RedisService extends BaseRedisService {

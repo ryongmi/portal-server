@@ -2,7 +2,7 @@ import * as fs from 'fs';
 
 import { registerAs } from '@nestjs/config';
 
-import { JwtConfig } from '@/common/interfaces/config.interfaces.js';
+import { JwtConfig } from '@common/interfaces/config.interfaces.js';
 
 export const jwtConfig = registerAs(
   'jwt',
