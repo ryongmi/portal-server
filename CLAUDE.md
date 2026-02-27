@@ -220,7 +220,7 @@ npm run build       # TypeScript 컴파일
 
 # portal-server 전용 개발 가이드
 
-> **NestJS 공통 개발 표준**: [authz-server/CLAUDE.md](../authz-server/CLAUDE.md)의 **"krgeobuk NestJS 서버 공통 개발 표준"** 섹션을 필수로 참조하세요.
+> **NestJS 공통 개발 표준**: [docs/KRGEOBUK_NESTJS_SERVER_GUIDE.md](../docs/KRGEOBUK_NESTJS_SERVER_GUIDE.md)를 필수로 참조하세요.
 
 ## Service 도메인 구조
 
