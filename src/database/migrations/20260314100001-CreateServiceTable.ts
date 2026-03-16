@@ -6,7 +6,7 @@ export class CreateServiceTable20260314100001 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS \`service\` (
-        \`id\`                 CHAR(36)        NOT NULL,
+        \`id\`                 VARCHAR(36)        NOT NULL,
         \`name\`               VARCHAR(50)     NOT NULL,
         \`description\`        VARCHAR(255)    NULL,
         \`base_url\`           VARCHAR(2048)   NULL,
