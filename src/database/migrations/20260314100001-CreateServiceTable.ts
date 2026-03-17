@@ -14,9 +14,9 @@ export class CreateServiceTable20260314100001 implements MigrationInterface {
         \`is_visible_by_role\` TINYINT(1)      NOT NULL DEFAULT 0,
         \`display_name\`       VARCHAR(50)     NULL,
         \`icon_url\`           VARCHAR(2048)   NULL,
-        \`created_at\`         TIMESTAMP(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
-        \`updated_at\`         TIMESTAMP(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
-        \`deleted_at\`         TIMESTAMP(6)    NULL,
+        \`created_at\`         DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+        \`updated_at\`         DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+        \`deleted_at\`         DATETIME(6)    NULL,
         PRIMARY KEY (\`id\`),
         UNIQUE KEY \`UQ_service_name\` (\`name\`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
